@@ -1,0 +1,10 @@
+agent_id: agent-2-error-diagnosis
+name: Error Diagnosis Agent
+version: "1.0.0"
+phase: "PHASE_1"   # PHASE_1 = alert only, PHASE_2 = thêm auto-retry
+
+notify:
+  on_error: true
+  on_unknown: true
+
+log_table: agent_log.diagnosis_log

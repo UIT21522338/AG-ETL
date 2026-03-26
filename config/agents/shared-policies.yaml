@@ -1,0 +1,12 @@
+# Shared policies for all agents
+escalation:
+  teams_webhook: ${TEAMS_WEBHOOK_URL}
+  email_recipients:
+    - de-team@company.com
+  escalation_timeout_minutes: 30
+
+logging:
+  table: agent_audit_log
+  retention_days: 90
+
+confirm_timeout_minutes: 15

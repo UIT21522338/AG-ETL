@@ -1,0 +1,24 @@
+[
+  {
+    "source": "nifi_bulletin",
+    "source_log_id": "bulletin-001",
+    "log_id": null,
+    "batch_id": null,
+    "tenant_code": null,
+    "project_version": null,
+    "job_id": null,
+    "job_name": "PutDatabaseRecord/bronze_sales",
+    "start_time": null,
+    "end_time": "2025-09-08T00:14:00",
+    "status": "failed",
+    "rows_read": null,
+    "rows_written": null,
+    "error_message": "too many connections for role \"etl_user\"",
+    "job_group": null,
+    "layer": null,
+    "flow_version": null,
+    "from_date": null,
+    "to_date": null,
+    "environment": "DEV"
+  }
+]

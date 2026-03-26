@@ -1,0 +1,5 @@
+# NiFi connection config
+api_version: v1
+timeout_seconds: 30
+retry_attempts: 3
+retry_delay_seconds: 5

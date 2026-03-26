@@ -1,0 +1,5 @@
+# Alert thresholds
+queue_depth_threshold: 10000
+bulletin_check_interval_seconds: 60
+processor_stopped_alert: true
+backpressure_alert: true

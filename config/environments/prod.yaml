@@ -1,0 +1,17 @@
+environment: PROD
+agent_2:
+  # PostgreSQL logging schema and table for ETL job execution history
+  pg_schema_etl_log: a_etl_monitor
+  pg_table_job_log: etl_job_log
+  
+  # Maximum errors to process per polling cycle
+  max_errors_per_run: 50
+  
+  # Lookback window in minutes — retrieve errors from last N minutes
+  # Rule: lookback_minutes >= POLL_INTERVAL_seconds / 60 * 2
+  # Production: use 10+ minutes for stability (prevents duplicate alerts)
+  # Set -1 to disable time filter (manual backfill mode only)
+  lookback_minutes: 10
+  
+  # Agent logging schema (for deduplication and audit trail)
+  pg_schema_agent_log: agent_log

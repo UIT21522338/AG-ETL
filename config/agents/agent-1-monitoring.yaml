@@ -1,0 +1,9 @@
+agent_id: agent-1-monitoring
+name: Monitoring Agent
+version: "1.0.0"
+
+polling_interval_seconds: 60
+queue_depth_threshold: 10000
+notify:
+  on_alert: true
+log_table: agent1_monitoring_log
