@@ -35,3 +35,25 @@ uvicorn orchestrator.api.http_endpoint:app --reload
 
 ## Quy trình phát triển
 Xem: `docs/test-strategy-and-qa-process.md`
+
+## Agent 2 Retry Timing (Phase 2)
+
+Agent 2 su dung 2 bien retry rieng biet de tranh nham lan:
+
+- `CONFIRMED_NEW_FAILURE_MINUTES`:
+	nguong xac nhan loi moi that su sau retry, so sanh `error_end_time` voi
+	`last_retry_at + N phut`.
+- `FALLBACK_DELAY_MINUTES`:
+	nguong du phong chi dung khi timestamp bi null/parse loi, so sanh
+	`now - last_retry_at`.
+
+Gia tri mac dinh:
+
+- `CONFIRMED_NEW_FAILURE_MINUTES=2`
+- `FALLBACK_DELAY_MINUTES=5`
+
+Khuyen nghi dat gia tri theo toc do Bronze:
+
+1. Do `min` thoi gian Bronze trong 30 ngay.
+2. Dat `CONFIRMED_NEW_FAILURE_MINUTES = min + 1`.
+3. Dat `FALLBACK_DELAY_MINUTES = confirmed + 1`.

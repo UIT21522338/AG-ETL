@@ -19,7 +19,7 @@ def poll_pg_errors(pg_client: PGClient, config: dict) -> list:
       max_errors_per_run : int  (default: 50)
       environment        : str  (DEV | UAT | PROD)
       lookback_minutes   : int  retrieve errors from last N minutes
-                                (default: 10, use -1 to disable time filter for backfill)
+                                (default: 5, use -1 to disable time filter for backfill)
     
     Returns:
       list[dict] - Normalized error records ready for classification
@@ -31,13 +31,13 @@ def poll_pg_errors(pg_client: PGClient, config: dict) -> list:
     table    = config.get('pg_table_job_log',   'etl_job_log')
     limit    = config.get('max_errors_per_run', 50)
     env      = config.get('environment',        'DEV')
-    lookback = int(config.get('lookback_minutes', 10))
+    lookback = int(config.get('lookback_minutes', 5))
 
     try:
         # Build time filter: only include if lookback > 0
         # If lookback <= -1, filter is disabled (for manual backfill scenarios)
         time_filter = (
-            f"AND end_time >= NOW() - INTERVAL '{lookback} minutes'"
+            f"AND end_time >= NOW() AT TIME ZONE 'Asia/Ho_Chi_Minh' - INTERVAL '{lookback} minutes'"
             if lookback > 0 else ''
         )
 

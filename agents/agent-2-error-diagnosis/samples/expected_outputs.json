@@ -1,0 +1,10 @@
+[
+  {"id":"E01","retry_category":"TRANSIENT","sub_category":"CONNECTION_TIMEOUT","should_retry":true},
+  {"id":"E02","retry_category":"TRANSIENT","sub_category":"NETWORK_RESET","should_retry":true},
+  {"id":"E03","retry_category":"TRANSIENT","sub_category":"TOO_MANY_CONNECTIONS","should_retry":true},
+  {"id":"E04","retry_category":"NON_TRANSIENT","sub_category":"DATA_QUALITY","should_retry":false},
+  {"id":"E05","retry_category":"NON_TRANSIENT","sub_category":"CONFIGURATION","should_retry":false},
+  {"id":"E06","retry_category":"NON_TRANSIENT","sub_category":"SOURCE_UNAVAILABLE","should_retry":false},
+  {"id":"E07","retry_category":"NON_TRANSIENT","sub_category":"RESOURCE","should_retry":false},
+  {"id":"E08","retry_category":"NON_TRANSIENT","sub_category":"UNKNOWN","should_retry":false}
+]

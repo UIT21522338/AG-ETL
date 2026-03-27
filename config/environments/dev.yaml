@@ -9,9 +9,17 @@ agent_2:
   
   # Lookback window in minutes — retrieve errors from last N minutes
   # Rule: lookback_minutes >= POLL_INTERVAL_seconds / 60 * 2
-  # If poll_interval=60s -> min 2 min, recommend 10 min for safety
+  # If poll_interval=60s -> min 2 min, recommend 5 min for safety
   # Set -1 to disable time filter (manual backfill mode only)
-  lookback_minutes: 10
+  lookback_minutes: 5
   
   # Agent logging schema (for deduplication and audit trail)
   pg_schema_agent_log: agent_log
+
+  retry:
+    enabled: true
+    max_retries: 3
+    confirmed_new_failure_minutes: 2
+    fallback_delay_minutes: 5
+    max_retry_window_minutes: 50
+    nifi_luong3_processor_id: "REPLACE_WITH_ACTUAL_PROCESSOR_ID"

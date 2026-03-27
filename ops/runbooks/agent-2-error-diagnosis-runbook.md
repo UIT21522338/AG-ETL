@@ -86,3 +86,46 @@ FROM agent_log.diagnosis_log
 GROUP BY error_category
 ORDER BY total DESC;
 ```
+
+## Retry Mechanism
+
+Agent tu dong retry loi TRANSIENT toi da 3 lan.
+
+### Kiem tra trang thai retry trong DB:
+```sql
+-- Xem cac job dang duoc retry
+SELECT job_name, batch_id, retry_count, retry_status, last_retry_at, error_category
+FROM agent_log.diagnosis_log
+WHERE retry_eligible = true
+ORDER BY processed_at DESC LIMIT 20;
+
+-- Job bi het retry (can DE xu ly thu cong):
+SELECT job_name, batch_id, error_message_raw, llm_root_cause, llm_suggested_steps
+FROM agent_log.diagnosis_log
+WHERE retry_status = 'MAX_REACHED'
+ORDER BY processed_at DESC;
+
+-- Ti le retry thanh cong:
+SELECT
+	COUNT(*) FILTER (WHERE retry_status = 'TRIGGERED') as triggered,
+	COUNT(*) FILTER (WHERE retry_status = 'SUCCESS')   as success,
+	COUNT(*) FILTER (WHERE retry_status = 'MAX_REACHED') as max_reached
+FROM agent_log.diagnosis_log
+WHERE retry_eligible = true
+	AND processed_at > NOW() - INTERVAL '7 days';
+```
+
+### Khi can disable retry khan cap:
+```bash
+# Windows PowerShell
+$env:RETRY_ENABLED="false"
+python agents/agent-2-error-diagnosis/run.py --loop
+
+# Linux/macOS
+RETRY_ENABLED=false python agents/agent-2-error-diagnosis/run.py --loop
+```
+
+### Khi NiFi Luong 3 processor ID thay doi:
+1. NiFi UI -> click GenerateFlowFile Luong 3 -> Copy ID
+2. Cap nhat NIFI_LUONG3_PROCESSOR_ID trong .env
+3. Khoi dong lai agent

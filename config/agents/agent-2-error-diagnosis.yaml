@@ -1,10 +1,35 @@
 agent_id: agent-2-error-diagnosis
-name: Error Diagnosis Agent
-version: "1.0.0"
-phase: "PHASE_1"   # PHASE_1 = alert only, PHASE_2 = thêm auto-retry
+name: Error Diagnosis & Auto-Recovery Agent
+version: "2.0.0"
+phase: PHASE_2
 
 notify:
   on_error: true
   on_unknown: true
+  on_retry_triggered: true     # gui Teams khi bat dau retry
+  on_retry_success: true       # gui Teams khi retry thanh cong
+  on_retry_max_reached: true   # gui Teams khi het luot retry
 
 log_table: agent_log.diagnosis_log
+
+retry:
+  enabled: true
+  eligible_categories:
+    - TRANSIENT                # CHI retry nhom nay
+
+  # Max retries — doc tu .env MAX_RETRIES, YAML la fallback
+  # Thay doi luc chay: set MAX_RETRIES=5 trong .env, khong can sua code
+  max_retries: 3
+
+  # BIEN 1: so sanh end_time vs last_retry_at / last_alert_at (luong chinh)
+  # Dat = thoi gian Bronze job nhanh nhat + 1 buffer
+  confirmed_new_failure_minutes: 2
+
+  # BIEN 2: fallback khi timestamp NULL/parse loi (luong du phong)
+  # Dat > confirmed_new_failure_minutes
+  fallback_delay_minutes: 5
+
+  # Tong thoi gian retry window
+  max_retry_window_minutes: 50
+
+  nifi_luong3_processor_id: "REPLACE_WITH_ACTUAL_PROCESSOR_ID"

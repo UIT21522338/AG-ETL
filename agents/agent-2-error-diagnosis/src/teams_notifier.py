@@ -1,192 +1,128 @@
 import requests
-
+from datetime import datetime
 from shared.logging.logger import get_logger
 
-logger = get_logger("agent-2.teams_notifier")
+logger = get_logger('agent-2.teams_notifier')
+
+SEVERITY_EMOJI = {
+    'CRITICAL': '🔴',
+    'HIGH'    : '🟠',
+    'MEDIUM'  : '🟡',
+    'LOW'     : '🟢',
+}
+CATEGORY_EMOJI = {
+    'TRANSIENT'        : '⚡',
+    'DATA_QUALITY'     : '📊',
+    'CONFIGURATION'    : '⚙',
+    'SOURCE_UNAVAILABLE': '📵',
+    'RESOURCE'         : '💾',
+    'UNKNOWN'          : '❓',
+}
 
 
-def _severity_color(severity: str) -> str:
-    sev = str(severity or "").upper()
-    if sev in {"CRITICAL", "HIGH"}:
-        return "Attention"
-    if sev == "MEDIUM":
-        return "Warning"
-    return "Good"
+def _ts_str(ts) -> str:
+    if ts is None:
+        return 'N/A'
+    try:
+        if isinstance(ts, datetime):
+            return ts.strftime('%Y-%m-%d %H:%M:%S')
+        return str(ts)[:19].replace('T', ' ')
+    except Exception:
+        return str(ts)
 
 
-def _extract_processor_info(job_name: str) -> tuple:
-    """
-    Parse processor name and ID from job_name.
-    
-    Format: "ProcessorName[id=uuid]" -> ("ProcessorName", "uuid")
-    Example: "PutDatabaseRecord[id=b6b57519-019c-1000-74c7]" 
-             -> ("PutDatabaseRecord", "b6b57519-019c-1000-74c7")
-    
-    If format is unexpected, returns (job_name, "")
-    """
-    if not job_name:
-        return ("Unknown", "")
-    
-    job_str = str(job_name).strip()
-    
-    # Try to parse format: "ProcessorName[id=uuid]"
-    if "[id=" in job_str:
-        bracket_pos = job_str.find("[id=")
-        if bracket_pos > 0:
-            processor_name = job_str[:bracket_pos]
-            id_part = job_str[bracket_pos + 4:]  # Skip "[id="
-            
-            # Remove closing bracket if present
-            if id_part.endswith("]"):
-                id_part = id_part[:-1]
-            
-            return (processor_name, id_part)
-    
-    # Fallback: return job_name as-is if format doesn't match
-    return (job_str, "")
+def build_alert_card(error: dict, classification: dict, llm_solution: dict) -> dict:
+    source = error.get('source', 'pg_log')
+    category = classification.get('error_category', 'UNKNOWN')
+    severity = llm_solution.get('severity') or classification.get('severity', 'MEDIUM')
+    sev_emoji = SEVERITY_EMOJI.get(severity, '🟡')
+    cat_emoji = CATEGORY_EMOJI.get(category, '❓')
 
-
-def _format_header(error_category: str, job_name: str) -> str:
-    """
-    Format header as: [CATEGORY] | ProcessorName (processor_id)
-    
-    Example: [SOURCE_UNAVAILABLE] | PutDatabaseRecord (b6b57519-019c-1000-74c7-0a28c1d71aa8)
-    """
-    processor_name, processor_id = _extract_processor_info(job_name)
-    
-    if processor_id:
-        return f"[{error_category}] | {processor_name} ({processor_id})"
+    if source in ('bulletin', 'nifi_bulletin'):
+        entity_name = error.get('processor_name') or error.get('job_name') or 'Unknown Processor'
+        entity_id = error.get('processor_id') or error.get('source_log_id') or 'N/A'
+        ts_str = _ts_str(error.get('bulletin_ts') or error.get('end_time'))
+        retry_str = 'Khong (Bulletin Board khong retry)'
+        source_label = 'NiFi Bulletin Board'
+        specific_facts = [
+            {'title': 'ID', 'value': entity_id},
+            {'title': 'Processor Name', 'value': entity_name},
+            {'title': 'Node', 'value': error.get('node_address', 'N/A')},
+        ]
     else:
-        return f"[{error_category}] | {processor_name}"
+        entity_name = error.get('job_name', 'Unknown Job')
+        entity_id = str(error.get('job_id', 'N/A'))
+        ts_str = _ts_str(error.get('end_time'))
+        source_label = 'PostgreSQL Job Log'
+        rc = int(error.get('retry_count') or 0)
+        rm = int(error.get('max_retries') or 3)
+        if error.get('retry_eligible'):
+            rs = error.get('retry_status') or 'PENDING'
+            retry_str = f'Co - lan {rc}/{rm} | Status: {rs}'
+        else:
+            retry_str = f'Khong (category {category} khong retry)'
+        if (error.get('retry_status') or '').upper() == 'MAX_REACHED':
+            retry_str = 'MAX_REACHED - can DE Lead xu ly thu cong'
+        specific_facts = [
+            {'title': 'ID', 'value': entity_id},
+            {'title': 'Job Name', 'value': entity_name},
+            {'title': 'Batch ID', 'value': str(error.get('batch_id', 'N/A'))},
+            {'title': 'Tenant', 'value': error.get('tenant_code', 'N/A')},
+            {'title': 'Layer', 'value': error.get('layer', 'N/A')},
+            {'title': 'Rows Read', 'value': str(error.get('rows_read', 0))},
+            {'title': 'Rows Written', 'value': str(error.get('rows_written', 0))},
+        ]
 
+    title = f'{sev_emoji} {cat_emoji} {category} | {entity_name}'
+    steps = llm_solution.get('suggested_steps')
+    if not isinstance(steps, list) or not any(str(s).strip() for s in steps):
+        steps = [
+            'Doc error message day du trong thong bao',
+            'Kiem tra NiFi bulletin board va log file',
+            'Lien he DE Lead voi full error log de dieu tra',
+        ]
+    root_cause = llm_solution.get('root_cause') or llm_solution.get('root_cause_summary', 'Chua xac dinh')
+    err_msg = str(error.get('error_message', 'N/A'))
 
-def _truncate_text(text: str, max_len: int = 300) -> str:
-    value = str(text or "")
-    return value if len(value) <= max_len else value[:max_len] + "..."
-
-
-def _numbered_steps(steps) -> str:
-    if not isinstance(steps, list):
-        return "1. Khong co de xuat cu the."
-    cleaned = [str(s).strip() for s in steps if str(s).strip()]
-    if not cleaned:
-        return "1. Khong co de xuat cu the."
-    return "\n".join([f"{idx}. {step}" for idx, step in enumerate(cleaned[:3], start=1)])
-
-
-def build_teams_message(error_info: dict, classification: dict, llm_solution: dict) -> dict:
-    """
-    Build Microsoft Teams Adaptive Card message.
-    
-    Header format: [ERROR_CATEGORY] | ProcessorName (processor_id)
-    Example: [SOURCE_UNAVAILABLE] | PutDatabaseRecord (b6b57519-019c-1000-74c7-0a28c1d71aa8)
-    """
-    error_category = classification.get("error_category") or error_info.get("error_category") or "UNKNOWN"
-    matched_keyword = classification.get("matched_keyword") or error_info.get("matched_keyword")
-    job_name = error_info.get("job_name") or "Unknown"
-
-    severity = str(llm_solution.get("severity", "HIGH")).upper()
-    card_color = _severity_color(severity)
-    
-    # Format header with processor name and ID
-    header_text = _format_header(error_category, job_name)
-
-    body = [
-        {
-            "type": "TextBlock",
-            "size": "Large",
-            "weight": "Bolder",
-            "color": card_color,
-            "text": header_text,
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Tenant: {error_info.get('tenant_code')} | Job ID: {error_info.get('job_id')} | Layer: {error_info.get('layer')}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Moi truong: {error_info.get('environment')} | Batch: {error_info.get('batch_id')}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Thoi gian loi: {error_info.get('end_time')}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Error message: {_truncate_text(error_info.get('error_message', ''))}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Nhom loi: {error_category} | Keyword: {matched_keyword}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Data flow: {error_info.get('rows_read')} rows doc -> {error_info.get('rows_written')} rows ghi",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Root cause: {llm_solution.get('root_cause_summary', '')}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"De xuat xu ly:\n{_numbered_steps(llm_solution.get('suggested_steps'))}",
-            "wrap": True,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"Severity: {severity} | Est. fix: {llm_solution.get('estimated_fix_time')}",
-            "wrap": True,
-        },
+    facts = [
+        {'title': specific_facts[0]['title'], 'value': specific_facts[0]['value']},
+        {'title': 'Nguon', 'value': source_label},
+        {'title': 'Nhom loi', 'value': category},
+        {'title': 'Muc do', 'value': f'{sev_emoji} {severity}'},
+        {'title': 'Thoi gian', 'value': ts_str},
+        {'title': 'Retry', 'value': retry_str},
+    ] + specific_facts[1:] + [
+        {'title': 'Root Cause', 'value': root_cause},
+        {'title': 'Error Detail', 'value': err_msg[:1000]},
+        {'title': 'LLM Steps', 'value': ' | '.join([f'{i + 1}. {s}' for i, s in enumerate(steps[:3])])},
     ]
 
-    if bool(llm_solution.get("escalate_to_de_lead")):
-        body.append(
-            {
-                "type": "Container",
-                "style": "Attention",
-                "items": [
-                    {
-                        "type": "TextBlock",
-                        "text": "ESCALATE TO DE LEAD",
-                        "weight": "Bolder",
-                        "color": "Light",
-                        "wrap": True,
-                    }
-                ],
-            }
-        )
-
     return {
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "version": "1.4",
-                    "body": body,
-                },
-            }
-        ],
+        'type': 'message',
+        'attachments': [{
+            'contentType': 'application/vnd.microsoft.card.adaptive',
+            'content': {
+                '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+                'type': 'AdaptiveCard',
+                'version': '1.4',
+                'body': [
+                    {'type': 'TextBlock', 'text': title, 'weight': 'Bolder', 'size': 'Medium', 'wrap': True},
+                    {'type': 'FactSet', 'facts': facts},
+                ],
+            },
+        }],
     }
 
 
-def send_teams_alert(message: dict, webhook_url: str) -> bool:
+def send_teams_alert(card: dict, webhook_url: str) -> bool:
+    if not webhook_url:
+        logger.warning('TEAMS_WEBHOOK_URL not configured - skip alert')
+        return False
     try:
-        if not webhook_url:
-            logger.error("Teams webhook URL is empty")
-            return False
-        response = requests.post(webhook_url, json=message, timeout=10)
-        return 200 <= response.status_code < 300
-    except Exception as exc:
-        logger.error(f"Failed to send Teams alert: {exc}")
+        resp = requests.post(webhook_url, json=card, timeout=10)
+        resp.raise_for_status()
+        logger.info('Teams alert sent OK')
+        return True
+    except Exception as e:
+        logger.error(f'Teams alert failed: {e}')
         return False

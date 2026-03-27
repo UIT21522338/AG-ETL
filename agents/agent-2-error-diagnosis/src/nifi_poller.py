@@ -11,7 +11,7 @@ def _get_processed_bulletin_ids(pg_client: PGClient) -> set:
   try:
     rows = pg_client.fetchall(
       "SELECT source_log_id FROM agent_log.diagnosis_log"
-      " WHERE source = 'nifi_bulletin'"
+      " WHERE source IN ('nifi_bulletin', 'bulletin')"
     )
     ids = {r['source_log_id'] for r in rows}
     logger.debug(f'Loaded {len(ids)} processed bulletin ids from diagnosis_log')
@@ -60,7 +60,7 @@ def poll_nifi_bulletins(
       if bid in done_ids:
         continue
       result.append({
-        'source':          'nifi_bulletin',
+        'source':          'bulletin',
         'source_log_id':   bid,
         'log_id':          None,
         'batch_id':        None,

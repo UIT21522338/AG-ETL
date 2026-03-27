@@ -16,7 +16,6 @@ Database table: agent_log.diagnosis_log
     - tenant_code, job_id, job_name, batch_id, layer, environment
     - error_message_raw (full error text)
     - error_category (TRANSIENT/DATA_QUALITY/CONFIGURATION/SOURCE_UNAVAILABLE/RESOURCE)
-    - matched_keyword (which keyword triggered classification)
     - classification_method (rule/llm/default)
     - llm_root_cause, llm_suggested_steps (JSON), llm_severity, llm_escalate
     - teams_alert_sent (boolean)
@@ -25,7 +24,7 @@ Database table: agent_log.diagnosis_log
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from shared.db.pg_client import PGClient
 from shared.logging.logger import get_logger
 
@@ -41,7 +40,7 @@ def log_to_diagnosis_log(pg_client: PGClient, record: dict) -> int:
         record (dict): Complete error analysis with all required fields:
             source, source_log_id, correlation_id, tenant_code, job_id, job_name,
             batch_id, layer, environment, error_message_raw, error_category,
-            matched_keyword, classification_method,
+            classification_method,
             llm_root_cause, llm_suggested_steps, llm_severity, llm_escalate,
             teams_alert_sent, teams_alert_ts, processing_duration_ms
     
@@ -78,6 +77,7 @@ def log_to_diagnosis_log(pg_client: PGClient, record: dict) -> int:
             INSERT INTO agent_log.diagnosis_log (
                 source,
                 source_log_id,
+                alert_identifier,
                 correlation_id,
                 tenant_code,
                 job_id,
@@ -87,19 +87,26 @@ def log_to_diagnosis_log(pg_client: PGClient, record: dict) -> int:
                 environment,
                 error_message_raw,
                 error_category,
-                matched_keyword,
                 classification_method,
                 llm_root_cause,
                 llm_suggested_steps,
                 llm_severity,
+                severity,
                 llm_escalate,
                 teams_alert_sent,
                 teams_alert_ts,
+                last_alert_at,
                 processing_duration_ms,
+                retry_eligible,
+                retry_count,
+                retry_status,
+                last_retry_at,
+                retry_triggered_by,
                 processed_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
             RETURNING diagnosis_id
         """
@@ -107,6 +114,7 @@ def log_to_diagnosis_log(pg_client: PGClient, record: dict) -> int:
         params = (
             record.get('source'),
             record.get('source_log_id'),
+            record.get('alert_identifier'),
             record.get('correlation_id'),
             record.get('tenant_code'),
             record.get('job_id'),
@@ -116,16 +124,22 @@ def log_to_diagnosis_log(pg_client: PGClient, record: dict) -> int:
             record.get('environment'),
             record.get('error_message_raw'),
             record.get('error_category'),
-            record.get('matched_keyword'),
             record.get('classification_method'),
             record.get('llm_root_cause'),
             llm_steps_json,
             record.get('llm_severity'),
+            record.get('severity', record.get('llm_severity')),
             record.get('llm_escalate'),
             record.get('teams_alert_sent'),
             record.get('teams_alert_ts'),
+            record.get('last_alert_at'),
             record.get('processing_duration_ms'),
-            datetime.now(timezone.utc),
+            record.get('retry_eligible', False),
+            record.get('retry_count', 0),
+            record.get('retry_status', None),
+            record.get('last_retry_at', None),
+            record.get('retry_triggered_by', None),
+            datetime.now(),
         )
         
         # Execute INSERT and retrieve RETURNING diagnosis_id
