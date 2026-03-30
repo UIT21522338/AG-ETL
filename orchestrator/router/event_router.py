@@ -3,8 +3,8 @@ from shared.logging.logger import get_logger
 logger = get_logger("event_router")
 
 ROUTING_RULES = {
-    "nifi_error": "agent-2-error-diagnosis",
-    "nifi_alert": "agent-1-monitoring",
+    "nifi_error": "agent-1-error-diagnosis",
+    "nifi_alert": "agent-4-monitoring",
     "data_quality_fail": "agent-3-data-quality",
     "dependency_check": "agent-5-dependency",
     "chatops_command": "agent-6-chatops",

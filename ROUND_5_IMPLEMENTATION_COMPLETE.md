@@ -2,7 +2,7 @@
 
 ## ✅ Completed
 
-### 1. `agents/agent-2-error-diagnosis/src/diagnosis_logger.py`
+### 1. `agents/agent-1-error-diagnosis/src/diagnosis_logger.py`
 
 **Purpose**: Persist error analysis results to PostgreSQL `agent_log.diagnosis_log` table.
 
@@ -26,7 +26,7 @@ teams_alert_sent, teams_alert_ts, processing_duration_ms
 
 ---
 
-### 2. `agents/agent-2-error-diagnosis/src/agent_2_main.py`
+### 2. `agents/agent-1-error-diagnosis/src/agent_2_main.py`
 
 **Purpose**: Main orchestrator that ties together entire error diagnosis pipeline.
 
@@ -59,16 +59,16 @@ teams_alert_sent, teams_alert_ts, processing_duration_ms
 **Entry Points**:
 ```bash
 # Run once
-python agents/agent-2-error-diagnosis/src/agent_2_main.py
+python agents/agent-1-error-diagnosis/src/agent_2_main.py
 
 # Continuous polling (default 60s interval)
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --loop
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --loop
 
 # Dry-run (test without Teams/DB writes)
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --dry-run
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --dry-run
 
 # Custom interval
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --loop --interval 30
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --loop --interval 30
 ```
 
 **Configuration**:
@@ -86,7 +86,7 @@ python agents/agent-2-error-diagnosis/src/agent_2_main.py --loop --interval 30
 | diagnosis_logger.py | Created | Complete implementation |
 | agent_2_main.py | Updated | Fixed imports using importlib, fixed path calculation |
 | agents/__init__.py | Created | Package init |
-| agents/agent-2-error-diagnosis/__init__.py | Created | Package init |
+| agents/agent-1-error-diagnosis/__init__.py | Created | Package init |
 | shared/__init__.py | Created | Package init |
 | shared/db/__init__.py | Created | Package init |
 | shared/llm/__init__.py | Created | Package init |

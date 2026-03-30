@@ -1,4 +1,4 @@
-# RULES -- Agent 2: Toan bo logic va bien cau hinh
+# RULES -- Agent 1: Toan bo logic va bien cau hinh
 
 ## 1. Phan loai loi (classifier.py)
 

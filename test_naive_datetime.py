@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Test naive datetime comparison (no timezone info)"""
 import sys
-sys.path.insert(0, 'agents/agent-2-error-diagnosis/src')
+sys.path.insert(0, 'agents/agent-1-error-diagnosis/src')
 from datetime import datetime
 
 # Test 1: naive datetime comparison

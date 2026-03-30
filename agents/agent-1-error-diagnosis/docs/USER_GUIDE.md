@@ -1,4 +1,4 @@
-# USER GUIDE -- Agent 2: Huong dan su dung hang ngay
+# USER GUIDE -- Agent 1: Huong dan su dung hang ngay
 
 ## Khi nao toi nhan duoc thong bao?
 Ban se nhan Teams card khi:

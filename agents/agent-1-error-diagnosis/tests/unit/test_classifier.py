@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-_module_path = Path('agents/agent-2-error-diagnosis/src/classifier.py').resolve()
+_module_path = Path('agents/agent-1-error-diagnosis/src/classifier.py').resolve()
 _spec = importlib.util.spec_from_file_location('classifier', _module_path)
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)

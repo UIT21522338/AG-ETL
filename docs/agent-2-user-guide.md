@@ -73,7 +73,7 @@ Doi voi DEV, dam bao:
 ### 4.2 Agent 2
 
 File:
-- config/agents/agent-2-error-diagnosis.yaml
+- config/agents/agent-1-error-diagnosis.yaml
 
 Dam bao:
 - phase: PHASE_1
@@ -86,7 +86,7 @@ Dam bao:
 ### 5.1 Tao bang log cho Agent 2
 
 Chay script:
-- agents/agent-2-error-diagnosis/sql/setup_guide.sql
+- agents/agent-1-error-diagnosis/sql/setup_guide.sql
 
 Script nay tao:
 - schema agent_log
@@ -143,7 +143,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from shared.db.pg_client import PGClient
-from agents.agent_2_error_diagnosis.src.pg_poller import poll_pg_errors
+from agents.agent_1_error_diagnosis.src.pg_poller import poll_pg_errors
 
 pg = PGClient()
 pg.connect()
@@ -170,7 +170,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from shared.nifi.nifi_client import NiFiClient
-from agents.agent_2_error_diagnosis.src.nifi_poller import poll_nifi_bulletins
+from agents.agent_1_error_diagnosis.src.nifi_poller import poll_nifi_bulletins
 
 nifi = NiFiClient()
 errors = poll_nifi_bulletins(nifi, {"environment": "DEV"}, processed_ids=set())
@@ -187,8 +187,8 @@ Ket qua mong doi:
 
 ```python
 import json
-from agents.agent_2_error_diagnosis.src.classifier import classify_error
-from agents.agent_2_error_diagnosis.src.llm_analyzer import get_llm_solution
+from agents.agent_1_error_diagnosis.src.classifier import classify_error
+from agents.agent_1_error_diagnosis.src.llm_analyzer import get_llm_solution
 
 error = {
     "job_name": "bronze.OM_SalesOrd",
@@ -216,7 +216,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from agents.agent_2_error_diagnosis.src.teams_notifier import build_teams_message, send_teams_alert
+from agents.agent_1_error_diagnosis.src.teams_notifier import build_teams_message, send_teams_alert
 
 error_info = {
     "tenant_code": "FES",
@@ -307,13 +307,13 @@ DELETE FROM a_etl_monitor.etl_job_log WHERE log_id = 999001;
 - shared/db/pg_client.py
 - shared/nifi/nifi_client.py
 - shared/llm/copilot_client.py
-- agents/agent-2-error-diagnosis/src/pg_poller.py
-- agents/agent-2-error-diagnosis/src/nifi_poller.py
-- agents/agent-2-error-diagnosis/src/classifier.py
-- agents/agent-2-error-diagnosis/src/llm_analyzer.py
-- agents/agent-2-error-diagnosis/src/teams_notifier.py
-- agents/agent-2-error-diagnosis/prompts/system-prompt.md
-- agents/agent-2-error-diagnosis/prompts/examples.md
-- agents/agent-2-error-diagnosis/sql/setup_guide.sql
+- agents/agent-1-error-diagnosis/src/pg_poller.py
+- agents/agent-1-error-diagnosis/src/nifi_poller.py
+- agents/agent-1-error-diagnosis/src/classifier.py
+- agents/agent-1-error-diagnosis/src/llm_analyzer.py
+- agents/agent-1-error-diagnosis/src/teams_notifier.py
+- agents/agent-1-error-diagnosis/prompts/system-prompt.md
+- agents/agent-1-error-diagnosis/prompts/examples.md
+- agents/agent-1-error-diagnosis/sql/setup_guide.sql
 - config/environments/dev.yaml
-- config/agents/agent-2-error-diagnosis.yaml
+- config/agents/agent-1-error-diagnosis.yaml

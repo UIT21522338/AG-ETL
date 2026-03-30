@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 
-_module_path = Path('agents/agent-2-error-diagnosis/src/retry_policy.py').resolve()
+_module_path = Path('agents/agent-1-error-diagnosis/src/retry_policy.py').resolve()
 _spec = importlib.util.spec_from_file_location('retry_policy', _module_path)
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)

@@ -9,7 +9,7 @@
 
 ## Input
 - NiFi API metrics (polling interval: configurable)
-- Thresholds từ config/agents/agent-1-monitoring.yaml
+- Thresholds từ config/agents/agent-4-monitoring.yaml
 
 ## Output
 - Teams alert message
