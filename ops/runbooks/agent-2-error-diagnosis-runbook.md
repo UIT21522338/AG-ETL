@@ -8,33 +8,33 @@ Phase 1: Alert only. Phase 2 (tương lai): Auto-retry TRANSIENT errors.
 ## Chạy thủ công
 ```bash
 cd etl-nifi-agents
-python agents/agent-2-error-diagnosis/run.py
+python agents/agent-1-error-diagnosis/run.py
 ```
 
 ## Chạy vòng lặp liên tục
 ```bash
 cd etl-nifi-agents
-python agents/agent-2-error-diagnosis/run.py --loop
+python agents/agent-1-error-diagnosis/run.py --loop
 ```
 
 ## Override poll interval
 ```bash
 # Linux/macOS
-AGENT_POLL_INTERVAL=60 python agents/agent-2-error-diagnosis/run.py --loop
+AGENT_POLL_INTERVAL=60 python agents/agent-1-error-diagnosis/run.py --loop
 
 # Windows PowerShell
 $env:AGENT_POLL_INTERVAL=60
-python agents/agent-2-error-diagnosis/run.py --loop
+python agents/agent-1-error-diagnosis/run.py --loop
 ```
 
 ## Chạy theo lịch (Linux cron mỗi 1 phút)
 ```bash
-* * * * * cd /path/to/etl-nifi-agents && /path/to/venv/bin/python agents/agent-2-error-diagnosis/run.py >> /var/log/agent2.log 2>&1
+* * * * * cd /path/to/etl-nifi-agents && /path/to/venv/bin/python agents/agent-1-error-diagnosis/run.py >> /var/log/agent2.log 2>&1
 ```
 
 ## Chạy theo lịch (Windows Task Scheduler)
 - Program/script: `C:\path\to\venv\Scripts\python.exe`
-- Add arguments: `agents/agent-2-error-diagnosis/run.py`
+- Add arguments: `agents/agent-1-error-diagnosis/run.py`
 - Start in: `C:\path\to\etl-nifi-agents`
 
 ## Khi Teams không nhận được alert
@@ -42,7 +42,7 @@ python agents/agent-2-error-diagnosis/run.py --loop
 2. Kiểm tra DB:
 	`SELECT * FROM agent_log.diagnosis_log WHERE teams_alert_sent = false ORDER BY processed_at DESC LIMIT 5;`
 3. Chạy lại thủ công:
-	`python agents/agent-2-error-diagnosis/run.py`
+	`python agents/agent-1-error-diagnosis/run.py`
 
 ## Khi agent lỗi
 1. Xem log file: `tail -100 /var/log/agent2.log` (Linux) hoặc transcript log trên Task Scheduler (Windows).
@@ -119,10 +119,10 @@ WHERE retry_eligible = true
 ```bash
 # Windows PowerShell
 $env:RETRY_ENABLED="false"
-python agents/agent-2-error-diagnosis/run.py --loop
+python agents/agent-1-error-diagnosis/run.py --loop
 
 # Linux/macOS
-RETRY_ENABLED=false python agents/agent-2-error-diagnosis/run.py --loop
+RETRY_ENABLED=false python agents/agent-1-error-diagnosis/run.py --loop
 ```
 
 ### Khi NiFi Luong 3 processor ID thay doi:

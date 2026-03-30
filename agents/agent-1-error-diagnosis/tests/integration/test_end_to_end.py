@@ -3,8 +3,8 @@ import importlib.util
 from pathlib import Path
 
 
-_module_path = Path('agents/agent-2-error-diagnosis/src/agent_2_main.py').resolve()
-_spec = importlib.util.spec_from_file_location('agent_2_main', _module_path)
+_module_path = Path('agents/agent-1-error-diagnosis/src/agent_1_main.py').resolve()
+_spec = importlib.util.spec_from_file_location('agent_1_main', _module_path)
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 

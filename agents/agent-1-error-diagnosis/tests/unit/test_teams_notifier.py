@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 
 
-_module_path = Path('agents/agent-2-error-diagnosis/src/teams_notifier.py').resolve()
+_module_path = Path('agents/agent-1-error-diagnosis/src/teams_notifier.py').resolve()
 _spec = importlib.util.spec_from_file_location('teams_notifier', _module_path)
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)

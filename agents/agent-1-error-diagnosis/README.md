@@ -1,12 +1,12 @@
-# Agent 2 -- Error Diagnosis & Auto-Recovery
+# Agent 1 -- Error Diagnosis & Auto-Recovery
 
 Tu dong phat hien loi ETL, phan loai bang LLM, retry neu TRANSIENT, alert Teams.
 
 ## Chay nhanh
   cp .env.example .env  # dien day du bien
-  python src/agent_2_main.py --health-check  # kiem tra ket noi
-  python src/agent_2_main.py --dry-run       # test khong gui that
-  python src/agent_2_main.py                 # chay that su
+  python src/agent_1_main.py --health-check  # kiem tra ket noi
+  python src/agent_1_main.py --dry-run       # test khong gui that
+  python src/agent_1_main.py                 # chay that su
 
 ## Tai lieu
   docs/ARCHITECTURE.md       -- Kien truc, flow, schema

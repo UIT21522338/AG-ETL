@@ -1,4 +1,4 @@
-# PRODUCTION CHECKLIST -- Agent 2: Truoc khi go-live
+# PRODUCTION CHECKLIST -- Agent 1: Truoc khi go-live
 
 ## Phan 1: Moi truong (Infrastructure)
 
@@ -22,7 +22,7 @@
 
 ## Phan 3: Kiem tra ket noi (Health Check)
 
-  [ ] Chay: python agent_2_main.py --health-check
+  [ ] Chay: python agent_1_main.py --health-check
       Ket qua: PostgreSQL OK | NiFi OK | Teams OK
   [ ] Query DB xac nhan timezone dung:
       SELECT NOW() AT TIME ZONE 'Asia/Ho_Chi_Minh';
@@ -31,13 +31,13 @@
 ## Phan 4: Dry run cuoi cung
 
   [ ] Insert 1 loi TRANSIENT test vao etl_job_log
-  [ ] Chay: python agent_2_main.py --dry-run
+  [ ] Chay: python agent_1_main.py --dry-run
   [ ] Log hien thi: classify TRANSIENT, would retry, would alert
   [ ] Xoa row test: DELETE FROM a_etl_monitor.etl_job_log WHERE job_name='verify.%'
 
 ## Phan 5: Go-live
 
-  [ ] Chay production: python agent_2_main.py (hoac setup systemd/docker)
+  [ ] Chay production: python agent_1_main.py (hoac setup systemd/docker)
   [ ] Mo Teams channel, xac nhan nhan duoc card test dau tien
   [ ] Theo doi log 30 phut dau: khong co ERROR-level log bat thuong
   [ ] Confirm NiFi Luong 3 co FlowFile khi TRANSIENT job fail

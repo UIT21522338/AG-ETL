@@ -157,9 +157,9 @@ If token auth fails:
 - ✅ `test_nifi_token_auth.py` - Created token test
 - ✅ `test_agent2_full.py` - Created comprehensive test
 - ℹ️  No changes needed to:
-  - `agents/agent-2-error-diagnosis/src/nifi_poller.py`
-  - `agents/agent-2-error-diagnosis/src/classifier.py`
-  - `agents/agent-2-error-diagnosis/src/llm_analyzer.py`
+  - `agents/agent-1-error-diagnosis/src/nifi_poller.py`
+  - `agents/agent-1-error-diagnosis/src/classifier.py`
+  - `agents/agent-1-error-diagnosis/src/llm_analyzer.py`
 
 ## Summary
 

@@ -4,7 +4,7 @@ import importlib.util
 from pathlib import Path
 
 
-_module_path = Path('agents/agent-2-error-diagnosis/src/alert_dedup.py').resolve()
+_module_path = Path('agents/agent-1-error-diagnosis/src/alert_dedup.py').resolve()
 _spec = importlib.util.spec_from_file_location('alert_dedup', _module_path)
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)

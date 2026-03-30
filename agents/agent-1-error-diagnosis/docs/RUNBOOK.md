@@ -1,28 +1,28 @@
-# RUNBOOK -- Agent 2: Cach chay va xu ly su co
+# RUNBOOK -- Agent 1: Cach chay va xu ly su co
 
 ## 1. Cac che do chay
 
 ### 1.1 Chay binh thuong (production mode)
-  python agents/agent-2-error-diagnosis/src/agent_2_main.py
+  python agents/agent-1-error-diagnosis/src/agent_1_main.py
 
   Hieu qua: Bat dau polling loop, cu N giay quet 1 lan,
   phat hien loi moi, phan loai, retry/alert tu dong, ghi log.
   Chay mai mai cho den khi Ctrl+C.
 
 ### 1.2 Chay 1 lan duy nhat (manual trigger)
-  python agents/agent-2-error-diagnosis/src/agent_2_main.py --once
+  python agents/agent-1-error-diagnosis/src/agent_1_main.py --once
 
   Hieu qua: Quet 1 lan roi thoat. Dung de test hoac chay theo cron.
 
 ### 1.3 Dry run (kiem tra logic, khong gui Teams, khong trigger NiFi)
-  python agents/agent-2-error-diagnosis/src/agent_2_main.py --dry-run
+  python agents/agent-1-error-diagnosis/src/agent_1_main.py --dry-run
 
   Hieu qua: Phan loai loi, hien thi ket qua ra log,
   KHONG gui Teams, KHONG trigger NiFi Luong 3, KHONG ghi diagnosis_log.
   Dung de verify logic truoc khi deploy len moi truong moi.
 
 ### 1.4 Test ket noi (khong xu ly loi, chi kiem tra kha nang ket noi)
-  python agents/agent-2-error-diagnosis/src/agent_2_main.py --health-check
+  python agents/agent-1-error-diagnosis/src/agent_1_main.py --health-check
 
   Kiem tra: PostgreSQL ping, NiFi API ping, Teams webhook ping.
   Exit 0 neu tat ca OK, exit 1 neu bat ky thu nao fail.
@@ -53,7 +53,7 @@
 ## 3. Xem log
 
   # Log terminal real-time
-  python agents/agent-2-error-diagnosis/src/agent_2_main.py 2>&1 | tee agent2.log
+  python agents/agent-1-error-diagnosis/src/agent_1_main.py 2>&1 | tee agent2.log
 
   # Query DB xem ket qua gan nhat
   SELECT diagnosis_id, TO_CHAR(processed_at,'HH24:MI:SS') as time,

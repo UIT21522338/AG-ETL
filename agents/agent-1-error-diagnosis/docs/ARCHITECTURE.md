@@ -1,4 +1,4 @@
-# ARCHITECTURE -- Agent 2: Error Diagnosis & Auto-Recovery
+# ARCHITECTURE -- Agent 1: Error Diagnosis & Auto-Recovery
 Version: 2.0 | Updated: 2026-03-27
 
 ## Tong quan
@@ -15,7 +15,7 @@ Chay theo polling interval (cron hoac loop), khong can trigger thu cong.
             |                           |
             +----------+  +-------------+
                        v  v
-               agent_2_main.py
+               agent_1_main.py
                process_single_error(error)
                        |
               [Step 1+2] classifier.py
@@ -89,7 +89,7 @@ Chay theo polling interval (cron hoac loop), khong can trigger thu cong.
 
 | Module | Nhiem vu duy nhat |
 |--------|-------------------|
-| agent_2_main.py | Orchestration: goi tung buoc theo thu tu |
+| agent_1_main.py | Orchestration: goi tung buoc theo thu tu |
 | classifier.py | Goi LLM, parse JSON, fallback an toan |
 | pg_poller.py | Query DB, tra ve list error dict |
 | nifi_poller.py | Goi NiFi API, tra ve list bulletin dict |

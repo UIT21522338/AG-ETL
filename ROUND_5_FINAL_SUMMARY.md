@@ -11,7 +11,7 @@ Successfully implemented the final two critical components of Agent 2's error di
 
 ### File 1: `diagnosis_logger.py`
 
-**Location**: `agents/agent-2-error-diagnosis/src/diagnosis_logger.py`
+**Location**: `agents/agent-1-error-diagnosis/src/diagnosis_logger.py`
 
 **Core Function**: `log_to_diagnosis_log(pg_client: PGClient, record: dict) -> int`
 
@@ -54,7 +54,7 @@ Successfully implemented the final two critical components of Agent 2's error di
 
 ### File 2: `agent_2_main.py`
 
-**Location**: `agents/agent-2-error-diagnosis/src/agent_2_main.py`
+**Location**: `agents/agent-1-error-diagnosis/src/agent_2_main.py`
 
 **Core Components**:
 
@@ -170,22 +170,22 @@ if __name__ == '__main__':
 
 **Run once (single cycle)**:
 ```bash
-python agents/agent-2-error-diagnosis/src/agent_2_main.py
+python agents/agent-1-error-diagnosis/src/agent_2_main.py
 ```
 
 **Continuous polling (default 60s interval)**:
 ```bash
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --loop
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --loop
 ```
 
 **Dry-run (test without side effects)**:
 ```bash
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --dry-run
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --dry-run
 ```
 
 **Debug logging level**:
 ```bash
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --loop --debug
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --loop --debug
 ```
 
 ### Configuration via Environment
@@ -216,7 +216,7 @@ set AGENT_ENVIRONMENT=PROD
 set AGENT_LOOKBACK_MINUTES=10
 set AGENT_POLL_INTERVAL=60
 set TEAMS_WEBHOOK_URL=https://outlook.webhook.office.com/webhookb2/...
-python agents/agent-2-error-diagnosis/src/agent_2_main.py --loop
+python agents/agent-1-error-diagnosis/src/agent_2_main.py --loop
 ```
 
 ---
@@ -246,12 +246,12 @@ All components verified:
 - `shared.db.pg_client.PGClient` — Database operations
 - `shared.nifi.nifi_client.NiFiClient` — NiFi integration
 - `shared.utils.config_loader.load_env(), load_yaml()` — Configuration loading
-- `agents.agent_2_error_diagnosis.src.classifier.classify_error` — Error classification
-- `agents.agent_2_error_diagnosis.src.llm_analyzer.get_llm_solution` — LLM analysis
-- `agents.agent_2_error_diagnosis.src.teams_notifier.build_teams_message, send_teams_alert` — Teams alerts
-- `agents.agent_2_error_diagnosis.src.diagnosis_logger.log_to_diagnosis_log` — Database logging
-- `agents.agent_2_error_diagnosis.src.pg_poller.poll_pg_errors` — PostgreSQL polling
-- `agents.agent_2_error_diagnosis.src.nifi_poller.poll_nifi_bulletins` — NiFi polling
+- `agents.agent_1_error_diagnosis.src.classifier.classify_error` — Error classification
+- `agents.agent_1_error_diagnosis.src.llm_analyzer.get_llm_solution` — LLM analysis
+- `agents.agent_1_error_diagnosis.src.teams_notifier.build_teams_message, send_teams_alert` — Teams alerts
+- `agents.agent_1_error_diagnosis.src.diagnosis_logger.log_to_diagnosis_log` — Database logging
+- `agents.agent_1_error_diagnosis.src.pg_poller.poll_pg_errors` — PostgreSQL polling
+- `agents.agent_1_error_diagnosis.src.nifi_poller.poll_nifi_bulletins` — NiFi polling
 
 ### Database Tables Used:
 - `a_etl_monitor.etl_job_log` — Source for failed jobs

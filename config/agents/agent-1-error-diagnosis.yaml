@@ -1,4 +1,4 @@
-agent_id: agent-2-error-diagnosis
+agent_id: agent-1-error-diagnosis
 name: Error Diagnosis & Auto-Recovery Agent
 version: "2.0.0"
 phase: PHASE_2
