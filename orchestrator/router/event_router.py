@@ -9,7 +9,6 @@ ROUTING_RULES = {
     "dependency_check": "agent-5-dependency",
     "chatops_command": "agent-6-chatops",
     "config_update": "agent-7-nifi-config",
-    "jobs_map_update": "agent-0-etl-jobs-map",
 }
 
 def route_event(event_type: str, payload: dict) -> str:
